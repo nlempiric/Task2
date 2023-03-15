@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=<device-width>, initial-scale=1.0">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>  
+
+    <title>Document</title>
+<style>
+
+#d1
+{
+    border: 1px solid black;
+    width: 540px;
+    height: 530px;
+    margin-top: 30px;
+    background-color:rgb(196, 209, 222); 
+     
+}
+#d2
+{
+    border: 1px solid black;
+    width: 540px;
+    height: 200px;
+    margin-top: 30px;
+    background-color:rgb(196, 209, 222);    
+}
+.btn
+{
+    width: 369px;
+    font-size: 16px;
+    /* background-color:t;  */
+}
+.btn:hover
+{
+    opacity: 0.8;
+    
+}
+.divh1
+{
+    margin-top: -10px;
+    background-color: rgb(127, 155, 179); 
+
+}
+label
+{
+    font-size: 16px;
+}
+.divh2
+{
+    background-color: rgb(127, 155, 179);
+}
+#b1
+{
+    width: 540px;
+    background-color: rgb(196, 209, 222);
+    border: 1px solid black;
+}
+</style>
+
+<script type="module">
+    import {claimtra,contract,contractAddress} from './index.js'
+     document.getElementById('b1').onclick=async function()
+     {
+        try{
+            if(ethereum)
+            {
+
+                const account = window.ethereum.request({
+                    method: 'wallet_requestPermissions',
+                    params: [{
+                        eth_accounts: {},
+                    }],
+                }).then((permissions) => {
+                const accountsPermission = permissions.find(
+                (permission) => permission.parentCapability === 'eth_accounts'
+                );
+                if (accountsPermission) {
+                console.log('account address--------',accountsPermission.caveats[0].value[0],'eth_accounts permission successfully requested!');
+                const ab=accountsPermission.caveats[0].value[0];
+                document.getElementById('add').setAttribute('value',ab);
+
+                }
+                }).catch((error) => {
+                    if (error.code === 4001) {
+                    } else {
+                        alert(error.message);
+                        console.error('error-----',error);
+                    }
+                }); 
+            }
+        }   
+        catch(error)
+        {
+            console.log('error:---',error);
+        }
+
+    };
+
+    document.getElementById('buybtn').onclick=async function()
+    {
+        const ad=document.getElementById('add').value;
+        const tb=document.getElementById('ta').value;
+        console.log('address---------',ad)
+        console.log('tokens---------',tb)   
+        claimtra(ad,tb);
+            // console.log('----value----------',Number(buytoken));
+            // const a=await c.wait();
+            // console.log('transaction is done');
+            // console.log('=-=-=-=-=-=-=-',a.events);
+            // console.log('id----',buycontract.orderId)
+            // console.log('-----------------', buycontract.orderId());   
+            
+            // console.log('-----------------', orderid);
+            // document.getElementById('or').setAttribute('value',orderid);
+       
+    }
+    document.getElementById('cbbtn').onclick= async function()
+    {
+        const accounts = await ethereum.request({method: 'eth_accounts'});       
+         if (accounts.length) {
+            console.log(`You're connected to: ${accounts[0]}`);
+            const c=await contract.balanceOf(accounts[0]);
+            // await c.wait();
+            let abal=Number(c)
+            console.log('balanceeeeeeee',Number(c));
+            document.getElementById('b').innerHTML=abal;
+         } else {
+            console.log("Metamask is not connected");
+            alert("User is not connected")
+         }
+    }
+
+    document.getElementById('TokenBal').onclick=async function()
+    {
+        const balan = await contract.balanceOf(contractAddress); 
+        const tbal = Number(balan);
+        console.log('-------tb---',tbal);
+        document.getElementById('tokenbal').innerHTML=tbal;
+        
+    }
+</script>
+</head>
+<body>
+    <center>
+        <div id="d1">
+            <div class="divh1"><h4 style="font-size: 28px;padding: 10px;color: rgb(255, 255, 255);font-weight: bold;">Buy Token</h4></div>
+
+        <form>
+            <br><br>
+            
+            <div class="form-inline">
+                <div class="form-group">
+                
+                <label class="form-label">Account Address:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                  <input type="text" class="form-control" id="add" readonly>
+                </div>
+              </div>
+              <br>
+              
+              <div class="form-inline">
+                <div class="form-group">
+                    <label class="form-label">Tokens: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                  <input type="number" class="form-control" id="ta" placeholder="Enter Token to buy">
+                </div>
+              </div>
+              <br>
+              &nbsp;&nbsp;<button type="button" class="btn btn-default" id="buybtn">Buy</button>
+        <br><br><br>
+          </form>
+         
+          <div class="divh2"><h4 style="font-size: 28px;color: rgb(255, 255, 255);padding: 10px;font-weight: bold;">Balance</h4></div>
+          <br>
+          <label id="b">Balance</label><br><br>
+          <button type="button" class="btn btn-default" id="cbbtn">Check Balance</button>
+          
+          
+        </div>
+    
+      
+        <div id="d2">
+            
+        
+            <div class="divh1"><h4 style="font-size: 28px;color: rgb(255, 255, 255);padding: 10px;font-weight: bold;">Remaining Tokens</h4></div>
+            <br>
+            <label id="tokenbal">Tokens</label><br><br>
+            <button type="button" class="btn btn-default" id="TokenBal">Check Balance</button>
+            
+        
+        </div>
+        <br>
+        <div>
+            <button type="button"  id="b1" class="btn btn-default">Connect Wallet</button>
+        </div>
+</center>
+</body>
+</html>
